@@ -57,7 +57,7 @@ for($i=0;$i<=52;$i++){
 /* Parsage des données */
 echo ("<br>Parsage des données...<br>");
 //$test='<tr><td><SPAN CLASS="value">16/11/2009</span></td><td><a href="javascript:ev(158)">MA110-CM</a></td><td>lun. 16 nov. 09</td><td>Lundi</td><td>08h00</td><td>1h45min</td><td>1A Promo </td><td>CLERC A </td><td>C080 </td><td></td><td></td><td></td><td></td><td></td></tr><tr><td><SPAN CLASS="value">16/11/2009</span></td><td><a href="javascript:ev(2808)">MA210-CM</a></td><td>lun. 16 nov. 09</td><td>Lundi</td><td>08h00</td><td>1h45min</td><td>2A Promo SHN1 SHN2 </td><td>BOULAY I </td><td>A048 </td><td></td><td></td><td></td><td></td><td></td></tr>';
-preg_match_all('#<tr><td><SPAN CLASS="value">([0-9/]+)</span></td><td><a[^>]*">([^>]*)</a></td><td>[^>]*</td><td>[^>]*</td><td>([0-9]+h[0-9]+)</td><td>([0-9]+h[0-9]+)[^>]*</td><td>([^>]*)</td><td>([^>]*)</td><td>([^>]*)</td><td>[^>]*</td><td>[^>]*</td><td>[^>]*</td><td>[^>]*</td><td>[^>]*</td></tr>#',$request,$tabl);
+preg_match_all('#<tr><td><SPAN CLASS="value">([0-9/]+)</span></td><td><a[^>]*">([^>]*)</a></td><td>[^>]*</td><td>[^>]*</td><td>([0-9]+h[0-9]+)</td><td>([0-9]+h[0-9]*)[^>]*</td><td>([^>]*)</td><td>([^>]*)</td><td>([^>]*)</td><td>[^>]*</td><td>[^>]*</td><td>[^>]*</td><td>[^>]*</td><td>[^>]*</td></tr>#',$request,$tabl);
 
 for ($i=0;$i<sizeof($tabl[0]);$i++){
   $date=$tabl[1][$i];
@@ -73,13 +73,15 @@ for ($i=0;$i<sizeof($tabl[0]);$i++){
 /* Ical */
         preg_match("#([0-9]+)/([0-9]+)/([0-9]+)#",$date,$date);
         preg_match("#([0-9]+)h([0-9]+)#",$time,$time);
-        preg_match("#([0-9]+)h([0-9]+)#",$duree,$duree);
+        preg_match("#([0-9]+)h([0-9]*)#",$duree,$duree);
+        if(!isset($duree[2])){$duree[2]=0;}
         $ical="BEGIN:VEVENT\nDTSTART;TZID=Europe/Paris:".$date[3].$date[2].$date[1]."T".$time[1].$time[2]."00\n";
         $duree[2]+=$time[2];
         $duree[1]+=$time[1];
         $duree[1]+=(int)($duree[2]/60);
         $duree[2]=$duree[2]%60;
         if(strlen($duree[1])==1){$duree[1]="0".$duree[1];}
+        if(strlen($duree[2])==1){$duree[2]="0".$duree[2];}
         $ical.="DTEND;TZID=Europe/Paris:".$date[3].$date[2].$date[1]."T".$duree[1].$duree[2]."00\n";
         $ical.="DESCRIPTION:\nSTATUS:CONFIRMED\n";
         $ical.="SUMMARY:".$matiere." en ".$salle." avec ".$prof." pour ".$promo."\n\nEND:VEVENT\n";
